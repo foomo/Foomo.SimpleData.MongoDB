@@ -211,8 +211,11 @@ class Collection
 		return is_null($voClassName)?$this->defaultVoClassName:$voClassName;
 	}
 	
-	private function hydrate(array $document, $voClassName)
+	private function hydrate($document, $voClassName)
 	{
+		if(is_null($document) || !is_array($document)) {
+			return null;
+		}
 		if(isset($document['_id'])) {
 			$document['id'] = (string) $document['_id'];
 		}
