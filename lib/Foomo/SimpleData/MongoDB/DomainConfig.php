@@ -28,6 +28,16 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 {
 	const NAME = 'Foomo.SimpleData.MongoDB.db';
 	/**
+	 * @var Mongo
+	 */
+	protected $mongoConnection;
+	/**
+	 * name of the mongo db
+	 * 
+	 * @var string
+	 */
+	protected $dbName;
+	/**
 	 * @var MongoDB
 	 */
 	protected $mongoDB;
@@ -45,18 +55,47 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	public function getDB()
 	{
 		if(is_null($this->mongoDB)) {
+			$this->mongoDB = $this->getConnection()->{$this->dbName};
+		}
+		return $this->mongoDB;
+	}
+	/**
+	 * my connection
+	 * 
+	 * @return \Mongo
+	 */
+	public function getConnection()
+	{
+		if(is_null($this->mongoConnection)) {
 			$url = parse_url($this->mongo);
 			$dsn = 	
 				// nested ternary bäh
 				(!empty($url['user'])?$url['user'] . (!empty($url['pass'])?$url['pass']:'') . '@' : '') .
 				$url['host']
 			;
-			$mongoConnection = new \Mongo($dsn);
-			$dbName = substr($url['path'], 1); 
-			$this->mongoDB = $mongoConnection->{$dbName};
+			$this->dbName = substr($url['path'], 1);
+			$this->mongoConnection = new \Mongo($dsn);
 		}
-		return $this->mongoDB;
+		return $this->mongoConnection;
 	}
+	/**
+	 * get the configured db name (will connect ...)
+	 * @return string
+	 */
+	public function getDBName()
+	{
+		if(!$this->dbName) {
+			$this->getConnection();
+		}
+		return $this->dbName;
+	}
+	/**
+	 * a collection from my connection
+	 * 
+	 * @param string $name
+	 * 
+	 * @return \MongoCollection
+	 */
 	public function getCollection($name)
 	{
 		return $this->getDB()->$name;

@@ -110,13 +110,7 @@ class Collection
 	 */
 	public function find(array $query, array $fields = array(), $voClassName = null)
 	{
-		//  maybe an iterator implementation would be nice here ... hmmm
-		$ret = array();
-		$voClassName = $this->getVoClassName($voClassName);
-		foreach($this->getCollection()->find($query, $fields) as $document) {
-			$ret[] = $this->hydrate($document, $voClassName);
-		}
-		return $ret;
+		return new Cursor($this->config->getConnection(), $this->config->getDBName() . '.' . $this->name , $query, $fields, $this->getVoClassName($voClassName));
 	}
 	
 	/**
@@ -134,7 +128,7 @@ class Collection
 	public function findOne(array $query, array $fields = array(), $voClassName = null)
 	{
 		$voClassName = $this->getVoClassName($voClassName);
-		return $this->hydrate($this->getCollection()->findOne($query, $fields), $voClassName);
+		return self::hydrate($this->getCollection()->findOne($query, $fields), $voClassName);
 	}
 
 	/**
@@ -210,12 +204,15 @@ class Collection
 	{
 		return is_null($voClassName)?$this->defaultVoClassName:$voClassName;
 	}
-	
-	private function hydrate(array $document, $voClassName)
+	public static function hydrate(array $document, $voClassName)
 	{
-		if(isset($document['_id'])) {
-			$document['id'] = (string) $document['_id'];
+		if(!is_null($document) && is_array($document)) {
+			if(isset($document['_id'])) {
+				$document['id'] = (string) $document['_id'];
+			}
+			return VoMapper::map($document, new $voClassName);
+		} else {
+			return null;
 		}
-		return VoMapper::map($document, new $voClassName);
 	}
 }
