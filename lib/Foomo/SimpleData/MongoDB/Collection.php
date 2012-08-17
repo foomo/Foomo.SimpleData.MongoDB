@@ -204,7 +204,7 @@ class Collection
 	{
 		return is_null($voClassName)?$this->defaultVoClassName:$voClassName;
 	}
-	public static function hydrate(array $document, $voClassName)
+	public static function hydrate($document, $voClassName)
 	{
 		if(!is_null($document) && is_array($document)) {
 			if(isset($document['_id'])) {
