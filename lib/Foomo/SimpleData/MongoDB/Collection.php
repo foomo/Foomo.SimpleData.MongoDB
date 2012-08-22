@@ -128,7 +128,12 @@ class Collection
 	public function findOne(array $query, array $fields = array(), $voClassName = null)
 	{
 		$voClassName = $this->getVoClassName($voClassName);
-		return self::hydrate($this->getCollection()->findOne($query, $fields), $voClassName);
+		$doc = $this->getCollection()->findOne($query, $fields);
+		if(!is_null($doc)) {
+			return self::hydrate($doc, $voClassName);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -206,13 +211,16 @@ class Collection
 	}
 	public static function hydrate($document, $voClassName)
 	{
-		if(!is_null($document) && is_array($document)) {
+		if(!is_array($document) && !is_object($document)) {
+			throw new \InvalidArgumentException('$document has to be an array or object');
+		} else {
+			if(is_object($document)) {
+				$document = (array) $document;
+			}
 			if(isset($document['_id'])) {
 				$document['id'] = (string) $document['_id'];
 			}
 			return VoMapper::map($document, new $voClassName);
-		} else {
-			return null;
 		}
 	}
 }
