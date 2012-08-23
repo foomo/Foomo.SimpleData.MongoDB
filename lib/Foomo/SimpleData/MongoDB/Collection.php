@@ -68,6 +68,15 @@ class Collection
     // ~ public interface
     //--------------------------------------------------------------------------
 	/**
+	 * my collection name
+	 * 
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+	/**
 	 * you will need this for commands, etc
 	 * 
 	 * @return \MongoDB
