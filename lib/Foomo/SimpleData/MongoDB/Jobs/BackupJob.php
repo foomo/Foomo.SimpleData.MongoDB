@@ -46,7 +46,9 @@ class BackupJob extends \Foomo\Jobs\AbstractJob {
 					. (!empty($config->port) ? ' --port ' . $config->port : '')
 					. ' -db ' . $db
 					. ' -out ' . $backupFolder;
-			exec($command);
+			//todo: use foomo cli
+			\Foomo\CliCall::create($command);
+			//exec($command);
 		}
 	}
 

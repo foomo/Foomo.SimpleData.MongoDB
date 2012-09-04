@@ -21,4 +21,6 @@ class DomainConfig extends \Foomo\Config\AbstractConfig{
 	
 	public $backupFolder = '';
 	
+	public $executionRule = '0   0       *       *       *';
+	
 }
