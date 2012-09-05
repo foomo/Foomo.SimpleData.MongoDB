@@ -72,8 +72,6 @@ class Module extends \Foomo\Modules\ModuleBase {
 			// \Foomo\Modules\Resource\Fs::getCacheResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 'navigationLeaves'),
 			// a database configuration
 			// \Foomo\Modules\Resource\Config::getResource('yourModule', 'db')
-			
-			//\Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\SimpleData\MongoDB\Jobs\DomainConfig::NAME)
 		);
 		return $resources;
 	}

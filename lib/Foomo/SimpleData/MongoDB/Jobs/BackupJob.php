@@ -7,20 +7,24 @@ namespace Foomo\SimpleData\MongoDB\Jobs;
  *
  * @author bostjanm
  */
-class BackupJob extends \Foomo\Jobs\AbstractJob {
+class BackupJob extends \Foomo\Jobs\AbstractJob
+{
 
 	protected $executionRule = '0   0       *       *       *';
 	public static $testRun = false;
 
-	public function getId() {
+	public function getId()
+	{
 		return sha1(__CLASS__);
 	}
 
-	public function getDescription() {
+	public function getDescription()
+	{
 		return 'mongo dump';
 	}
 
-	public function run() {
+	public function run()
+	{
 		$config = $this->getConfig();
 		if (!isset($config)) {
 			throw new \RuntimeException('mongo backup not configured properly');
@@ -38,7 +42,8 @@ class BackupJob extends \Foomo\Jobs\AbstractJob {
 			throw new \RuntimeException('Output location is not a folder: ' . $backupFolder);
 		}
 
-		foreach ($config->databases as $db) {
+		foreach ($config->databases as $db)
+		{
 			$command = 'mongodump'
 					. (!empty($config->username) ? ' --username ' . $config->username : '')
 					. (!empty($config->password) ? ' --password ' . $config->password : '')
@@ -47,12 +52,13 @@ class BackupJob extends \Foomo\Jobs\AbstractJob {
 					. ' -db ' . $db
 					. ' -out ' . $backupFolder;
 			//todo: use foomo cli
-			\Foomo\CliCall::create($command);
-			//exec($command);
+			//\Foomo\CliCall::create($command);
+			exec($command);
 		}
 	}
 
-	private function getConfig() {
+	private function getConfig()
+	{
 		if (self::$testRun === false) {
 			$config = \Foomo\Config::getConf(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\DomainConfig::NAME);
 		} else {
@@ -61,8 +67,20 @@ class BackupJob extends \Foomo\Jobs\AbstractJob {
 		return $config;
 	}
 
-	public static function getDefaultOutputFolder() {
-		return \Foomo\Config::getVarDir($module = \Foomo\SimpleData\MongoDB\Module::NAME);
+	public static function getDefaultOutputFolder()
+	{
+		if (self::$testRun === false) {
+			return \Foomo\Config::getVarDir($module = \Foomo\SimpleData\MongoDB\Module::NAME);
+		} else {
+			$testFolder = \Foomo\Config::getVarDir($module = \Foomo\SimpleData\MongoDB\Module::NAME) . DIRECTORY_SEPARATOR . 'test';
+			if (!file_exists($testFolder)) {
+				$success = mkdir($testFolder);
+				if (!$success) {
+					trigger_error('could not create test output folder ' . $folder, E_USER_ERROR);
+				}
+			}
+			return $testFolder;
+		}
 	}
 
 }
