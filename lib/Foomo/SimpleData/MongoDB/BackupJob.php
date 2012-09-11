@@ -20,7 +20,7 @@
 namespace Foomo\SimpleData\MongoDB;
 
 /**
- * backup a mongo db defined by the 
+ * backup a mongo db 
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author bostjan <bostjan.marusic@bestbytes.de>
@@ -29,7 +29,6 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 {
 
 	protected $executionRule = '0   0       *       *       *';
-	private $description = 'mongo dump';
 	public static $testRun = false;
 
 	/**
@@ -38,6 +37,10 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 	protected $config;
 	protected $outputFolder;
 
+	/**
+	 * get job id
+	 * @return string
+	 */
 	public function getId()
 	{
 		return sha1(serialize($this->config));
@@ -46,7 +49,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 	/**
 	 * configure
 	 * 
-	 * @param \Foomo\SimpleData\MongoDB\Jobs\DoimainConfig $config
+	 * @param \Foomo\SimpleData\MongoDB\Jobs\DomainConfig $config
 	 * 
 	 * @return \Foomo\SimpleData\MongoDB\BackupJob
 	 */
@@ -56,21 +59,15 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		return $this;
 	}
 
-	public function withDescription($description)
-	{
-		$this->description = $description;
-		return $this;
-	}
-
+	/**
+	 * set non-default folder
+	 * @param string $outputFolder absolute path
+	 * @return \Foomo\SimpleData\MongoDB\BackupJob
+	 */
 	public function withOutputFolder($outputFolder)
 	{
 		$this->outputFolder = $outputFolder;
 		return $this;
-	}
-
-	public function getDescription()
-	{
-		return $this->description;
 	}
 
 	public function run()
@@ -85,10 +82,10 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		}
 
 		if (!file_exists($backupFolder)) {
-			throw new \RuntimeException('Output folder does not exist: ' . $backupFolder);
+			throw new \RuntimeException('output folder does not exist: ' . $backupFolder);
 		}
 		if (!is_dir($backupFolder)) {
-			throw new \RuntimeException('Output location is not a folder: ' . $backupFolder);
+			throw new \RuntimeException('output location is not a folder: ' . $backupFolder);
 		}
 
 		if (!isset($this->config->mongo)) {
@@ -96,6 +93,11 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		}
 
 		$dbData = parse_url($this->config->mongo);
+		
+		if (!$dbData) {
+			throw new RuntimeException('the mongo connection data is invalid');
+		}
+		
 
 		$pathArray = explode('/', $dbData['path']);
 
@@ -148,17 +150,31 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 	public static function getDefaultOutputFolder()
 	{
 		if (self::$testRun === false) {
-			return \Foomo\Config::getVarDir($module = \Foomo\SimpleData\MongoDB\Module::NAME);
+			$folder = \Foomo\Config::getVarDir($module = \Foomo\SimpleData\MongoDB\Module::NAME) . DIRECTORY_SEPARATOR . 'mongoDumps';
+			$folder = self::validateFolder($folder);
+			return $folder;
 		} else {
 			$testFolder = \Foomo\Config::getVarDir($module = \Foomo\SimpleData\MongoDB\Module::NAME) . DIRECTORY_SEPARATOR . 'testDumps';
-			if (!file_exists($testFolder)) {
-				$success = mkdir($testFolder);
-				if (!$success) {
-					throw new \RuntimeException('could not create folder ' . $testFolder);
-				}
-			}
+			$testFolder = self::validateFolder($testFolder);
 			return $testFolder;
 		}
+	}
+
+	/**
+	 * check if folder exists if not create
+	 * @param string $folder
+	 * @return string folder
+	 * @throws \RuntimeException if cant create
+	 */
+	private static function validateFolder($folder)
+	{
+		if (!file_exists($folder)) {
+			$success = mkdir($folder);
+			if (!$success) {
+				throw new \RuntimeException('could not create folder ' . $folder);
+			}
+		}
+		return $folder;
 	}
 
 }

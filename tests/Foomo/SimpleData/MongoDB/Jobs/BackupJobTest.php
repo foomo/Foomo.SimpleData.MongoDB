@@ -61,8 +61,7 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 
 		// create test config
 		\Foomo\Config::restoreConfDefault(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
-		\unlink($oldConfig->filename);
-		\Foomo\Config\Utils::removeOldConfigs(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
+		
 	}
 
 	public function tearDown()
@@ -75,6 +74,7 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 		//remove folder
 		$this->rrmdir($this->getOutputFolder());
 		\Foomo\Config::removeConf(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
+		\Foomo\Config\Utils::removeOldConfigs(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
 	}
 
 	private function getOutputFolder()
