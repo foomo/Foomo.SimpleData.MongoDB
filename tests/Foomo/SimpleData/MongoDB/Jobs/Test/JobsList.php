@@ -33,7 +33,7 @@ class JobsList
 		$configs = \Foomo\Config::getConfs(\Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME);
 		foreach ($configs as $config)
 		{
-			$ret[] = \Foomo\SimpleData\MongoDB\BackupJob::create()->withConfig($config)->setDescription('test mongo dump job')->doDaily();
+			$ret[] = \Foomo\SimpleData\MongoDB\BackupJob::create()->withConfig($config)->setDescription('test mongo dump job')->executionRule('59, 23 * * *');
 		}
 		return $ret;
 	}

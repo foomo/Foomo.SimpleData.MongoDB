@@ -31,12 +31,64 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 	const TEST_DATABASE = 'testMongoDatabase';
 	const TEST_COLLECTION = 'testMongoCollection';
 
-	public function testMongoBackup()
+	public function testSimpleMongoBackup()
 	{
 		$jobs = Test\JobsList::getJobs();
 		\Foomo\Jobs\Runner::runAJob($jobs[0]);
 		$folder = $this->getOutputFolder() . DIRECTORY_SEPARATOR . self::TEST_DATABASE;
 		$file = $this->getOutputFolder() . DIRECTORY_SEPARATOR . self::TEST_DATABASE . DIRECTORY_SEPARATOR . self::TEST_COLLECTION . '.bson';
+		$this->assertTrue(file_exists($folder), 'mogo dump did not dump database');
+		$this->assertTrue(file_exists($file), 'mongo collection was not dumped');
+	}
+
+	public function testDailyMongoBackup()
+	{
+		$configs = \Foomo\Config::getConfs(\Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME);
+		$job = \Foomo\SimpleData\MongoDB\BackupJob::getDailyBackupJob($configs[0]);
+
+		\Foomo\Jobs\Runner::runAJob($job);
+		$folder = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_DAILY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE;
+		$file = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_DAILY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE . DIRECTORY_SEPARATOR . self::TEST_COLLECTION . '.bson';
+
+		$this->assertTrue(file_exists($folder), 'mogo dump did not dump database');
+		$this->assertTrue(file_exists($file), 'mongo collection was not dumped');
+	}
+
+	public function testWeeklyMongoBackup()
+	{
+		$configs = \Foomo\Config::getConfs(\Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME);
+		$job = \Foomo\SimpleData\MongoDB\BackupJob::getWeeklyBackupJob($configs[0]);
+
+		\Foomo\Jobs\Runner::runAJob($job);
+		$folder = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_WEEKLY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE;
+		$file = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_WEEKLY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE . DIRECTORY_SEPARATOR . self::TEST_COLLECTION . '.bson';
+
+		$this->assertTrue(file_exists($folder), 'mogo dump did not dump database');
+		$this->assertTrue(file_exists($file), 'mongo collection was not dumped');
+	}
+
+	public function testMonthlyMongoBackup()
+	{
+		$configs = \Foomo\Config::getConfs(\Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME);
+		$job = \Foomo\SimpleData\MongoDB\BackupJob::getMonthlyBackupJob($configs[0]);
+
+		\Foomo\Jobs\Runner::runAJob($job);
+		$folder = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_MONTHLY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE;
+		$file = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_MONTHLY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE . DIRECTORY_SEPARATOR . self::TEST_COLLECTION . '.bson';
+
+		$this->assertTrue(file_exists($folder), 'mogo dump did not dump database');
+		$this->assertTrue(file_exists($file), 'mongo collection was not dumped');
+	}
+
+	public function testYearlyMongoBackup()
+	{
+		$configs = \Foomo\Config::getConfs(\Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME);
+		$job = \Foomo\SimpleData\MongoDB\BackupJob::getYearlyBackupJob($configs[0]);
+
+		\Foomo\Jobs\Runner::runAJob($job);
+		$folder = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_YEARLY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE;
+		$file = $this->getOutputSubfolderForMode(\Foomo\SimpleData\MongoDB\BackupJob::MODE_YEARLY) . DIRECTORY_SEPARATOR . self::TEST_DATABASE . DIRECTORY_SEPARATOR . self::TEST_COLLECTION . '.bson';
+
 		$this->assertTrue(file_exists($folder), 'mogo dump did not dump database');
 		$this->assertTrue(file_exists($file), 'mongo collection was not dumped');
 	}
@@ -61,7 +113,6 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 
 		// create test config
 		\Foomo\Config::restoreConfDefault(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
-		
 	}
 
 	public function tearDown()
@@ -70,11 +121,12 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 		$m = new \Mongo();
 		$db = $m->TEST_DATABASE;
 		$db->drop();
-		\Foomo\SimpleData\MongoDB\BackupJob::$testRun = false;
+
 		//remove folder
 		$this->rrmdir($this->getOutputFolder());
 		\Foomo\Config::removeConf(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
 		\Foomo\Config\Utils::removeOldConfigs(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
+		\Foomo\SimpleData\MongoDB\BackupJob::$testRun = false;
 	}
 
 	private function getOutputFolder()
@@ -84,19 +136,47 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 
 	private function rrmdir($dir)
 	{
+
 		if (is_dir($dir)) {
 			$objects = scandir($dir);
 			foreach ($objects as $object)
 			{
 				if ($object != "." && $object != "..") {
 					if (filetype($dir . "/" . $object) == "dir")
-						$this->rrmdir($dir . "/" . $object); else
+						$this->rrmdir($dir . "/" . $object); else {
 						unlink($dir . "/" . $object);
+					}
 				}
 			}
 			reset($objects);
 			rmdir($dir);
 		}
+	}
+
+	private function getOutputSubFolderForMode($mode)
+	{
+		$backupFolder = $this->getOutputFolder();
+		switch ($mode) {
+			case \Foomo\SimpleData\MongoDB\BackupJob::MODE_DAILY:
+				$dayOfWeek = date('D');
+				$backupFolder = \Foomo\SimpleData\MongoDB\BackupJob::getOutputSubfolder($backupFolder, $dayOfWeek);
+				break;
+			case \Foomo\SimpleData\MongoDB\BackupJob::MODE_WEEKLY:
+				$week = \Foomo\SimpleData\MongoDB\BackupJob::getWeekNum(time());
+				$backupFolder = \Foomo\SimpleData\MongoDB\BackupJob::getOutputSubfolder($backupFolder, 'week_' . $week);
+				break;
+			case \Foomo\SimpleData\MongoDB\BackupJob::MODE_MONTHLY:
+				$month = date('F');
+				$backupFolder = \Foomo\SimpleData\MongoDB\BackupJob::getOutputSubfolder($backupFolder, $month);
+				break;
+			case \Foomo\SimpleData\MongoDB\BackupJob::MODE_YEARLY:
+				$year = date('Y');
+				$backupFolder = \Foomo\SimpleData\MongoDB\BackupJob::getOutputSubfolder($backupFolder, $year);
+				break;
+			default:
+				break;
+		}
+		return $backupFolder;
 	}
 
 }
