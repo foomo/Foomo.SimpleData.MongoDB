@@ -114,6 +114,16 @@ class BackupJobTest extends \PHPUnit_Framework_TestCase
 		// create test config
 		\Foomo\Config::restoreConfDefault(\Foomo\SimpleData\MongoDB\Module::NAME, \Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME, '');
 	}
+	
+	
+	public function testIds()
+	{
+		$configs = \Foomo\Config::getConfs(\Foomo\SimpleData\MongoDB\Jobs\Test\DomainConfig::NAME);
+		$job1 = \Foomo\SimpleData\MongoDB\BackupJob::getDailyBackupJob($configs[0]);
+		$job2 = \Foomo\SimpleData\MongoDB\BackupJob::getWeeklyBackupJob($configs[0]);
+
+		$this->assertNotEquals($job1->getId(), $job2->getId());
+	}
 
 	public function tearDown()
 	{

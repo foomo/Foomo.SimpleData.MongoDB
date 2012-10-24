@@ -23,7 +23,8 @@ namespace Foomo\SimpleData\MongoDB;
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  */
-class Module extends \Foomo\Modules\ModuleBase {
+class Module extends \Foomo\Modules\ModuleBase
+{
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
@@ -42,7 +43,8 @@ class Module extends \Foomo\Modules\ModuleBase {
 	/**
 	 * Your module needs to be set up, before being used - this is the place to do it
 	 */
-	public static function initializeModule() {
+	public static function initializeModule()
+	{
 		
 	}
 
@@ -51,28 +53,31 @@ class Module extends \Foomo\Modules\ModuleBase {
 	 *
 	 * @return string
 	 */
-	public static function getDescription() {
+	public static function getDescription()
+	{
 		return 'simple data fun with mongodb';
 	}
-	
+
 	/**
 	 * get all the module resources
 	 *
 	 * @return Foomo\Modules\Resource[]
 	 */
-	public static function getResources() {
+	public static function getResources()
+	{
 		$resources = array(
 			\Foomo\Modules\Resource\Module::getResource('Foomo', self::VERSION),
 			\Foomo\Modules\Resource\Module::getResource('Foomo.SimpleData', self::VERSION),
-			// get a run mode independent folder var/<runMode>/test
-			// \Foomo\Modules\Resource\Fs::getVarResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 'test'),
-			// and a file in it
-			// \Foomo\Modules\Resource\Fs::getVarResource(\Foomo\Modules\Resource\Fs::TYPE_File, 'test' . DIRECTORY_SEPARATOR . 'someFile'),
-			// request a cache resource
-			// \Foomo\Modules\Resource\Fs::getCacheResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 'navigationLeaves'),
-			// a database configuration
-			// \Foomo\Modules\Resource\Config::getResource('yourModule', 'db')
+				// get a run mode independent folder var/<runMode>/test
+				// \Foomo\Modules\Resource\Fs::getVarResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 'test'),
+				// and a file in it
+				// \Foomo\Modules\Resource\Fs::getVarResource(\Foomo\Modules\Resource\Fs::TYPE_File, 'test' . DIRECTORY_SEPARATOR . 'someFile'),
+				// request a cache resource
+				// \Foomo\Modules\Resource\Fs::getCacheResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 'navigationLeaves'),
+				// a database configuration
+				// \Foomo\Modules\Resource\Config::getResource('yourModule', 'db')
 		);
 		return $resources;
 	}
+
 }

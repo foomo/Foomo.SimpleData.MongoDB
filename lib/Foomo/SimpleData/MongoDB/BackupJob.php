@@ -53,14 +53,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 	 */
 	protected $outputFolder;
 
-	/**
-	 * get job id
-	 * @return string
-	 */
-	public function getId()
-	{
-		return sha1(serialize($this->config));
-	}
+	
 
 	/**
 	 * configure
