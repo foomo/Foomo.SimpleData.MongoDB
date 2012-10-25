@@ -38,7 +38,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 	 * defines the backups keeping strategy
 	 * @var string 
 	 */
-	protected static $mode = self::MODE_NORMAL;
+	public $mode = self::MODE_NORMAL;
 	protected $executionRule = '0   0       *       *       *';
 	public static $testRun = false;
 
@@ -90,7 +90,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 			$backupFolder = self::getDefaultOutputFolder();
 		}
 
-		switch (self::$mode) {
+		switch ($this->mode) {
 			case self::MODE_DAILY:
 				$dayOfWeek = date('D');
 				$backupFolder = self::getOutputSubfolder($backupFolder, $dayOfWeek);
@@ -202,7 +202,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		if (!$outputFolder) {
 			$outputFolder = self::getDefaultOutputFolder();
 		}
-		self::$mode = self::MODE_DAILY;
+	
 
 		$ret = \Foomo\SimpleData\MongoDB\BackupJob::create()
 				->withConfig($mongoConfig)
@@ -210,7 +210,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 				->setDescription("daily mongo dump of the db: " . self::getDbName($mongoConfig))
 				->lock()
 				->executionRule($minute . ' ' . $hour . ' * * *');
-
+		$ret->mode = self::MODE_DAILY;
 		return $ret;
 	}
 
@@ -233,7 +233,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		if (!$outputFolder) {
 			$outputFolder = self::getDefaultOutputFolder();
 		}
-		self::$mode = self::MODE_WEEKLY;
+		
 
 		$ret = \Foomo\SimpleData\MongoDB\BackupJob::create()
 				->withConfig($mongoConfig)
@@ -241,7 +241,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 				->setDescription("weekly mongo dump of the db: " . self::getDbName($mongoConfig))
 				->lock()
 				->executionRule($minute . ' ' . $hour . ' * * ' . $dayOfWeek);
-
+       $ret->mode = self::MODE_WEEKLY;
 		return $ret;
 	}
 
@@ -264,7 +264,6 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		if (!$outputFolder) {
 			$outputFolder = self::getDefaultOutputFolder();
 		}
-		self::$mode = self::MODE_MONTHLY;
 
 		$ret = \Foomo\SimpleData\MongoDB\BackupJob::create()
 				->withConfig($mongoConfig)
@@ -272,6 +271,8 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 				->setDescription("monthly mongo dump of the db: " . self::getDbName($mongoConfig))
 				->lock()
 				->executionRule($minute . ' ' . $hour . ' ' . $day . ' * *');
+		$ret->mode = self::MODE_MONTHLY;
+
 		return $ret;
 	}
 
@@ -298,7 +299,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 		if (!$outputFolder) {
 			$outputFolder = self::getDefaultOutputFolder();
 		}
-		self::$mode = self::MODE_YEARLY;
+		
 
 		$ret = \Foomo\SimpleData\MongoDB\BackupJob::create()
 				->withConfig($mongoConfig)
@@ -306,6 +307,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 				->setDescription("yearly mongo dump of the db: " . self::getDbName($mongoConfig))
 				->lock()
 				->executionRule($minute . ' ' . $hour . ' ' . $day . ' ' . $month . ' *');
+		$ret->mode = self::MODE_YEARLY;
 		return $ret;
 	}
 
