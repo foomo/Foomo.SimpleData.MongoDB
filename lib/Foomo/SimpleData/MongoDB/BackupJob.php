@@ -38,7 +38,7 @@ class BackupJob extends \Foomo\Jobs\AbstractJob
 	 * defines the backups keeping strategy
 	 * @var string 
 	 */
-	protected static $mode = self::MODE_NORMAL;
+	public $mode = self::MODE_NORMAL;
 	protected $executionRule = '0   0       *       *       *';
 	public static $testRun = false;
 
