@@ -67,14 +67,22 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	public function getConnection()
 	{
 		if(is_null($this->mongoConnection)) {
-			$url = parse_url($this->mongo);
-			$dsn = 	
-				// nested ternary bäh
-				(!empty($url['user'])?$url['user'] . (!empty($url['pass'])?$url['pass']:'') . '@' : '') .
-				$url['host']
-			;
-			$this->dbName = substr($url['path'], 1);
-			$this->mongoConnection = new \Mongo($dsn);
+			if(substr($this->mongo, 0, 11) == 'mongodb:///') {
+				// socket url parsing fails
+				$dbNameOffset = strpos(strrev($this->mongo), '/');
+				$this->dbName = substr($this->mongo, - $dbNameOffset);
+				$dsn = substr($this->mongo, 0, - $dbNameOffset - 1 );
+				$this->mongoConnection = new \Mongo($dsn);
+			} else {
+				$url = parse_url($this->mongo);
+				$dsn =
+					// nested ternary bäh
+					(!empty($url['user'])?$url['user'] . (!empty($url['pass'])?$url['pass']:'') . '@' : '') .
+					$url['host']
+				;
+				$this->dbName = substr($url['path'], 1);
+				$this->mongoConnection = new \Mongo($dsn);
+			}
 		}
 		return $this->mongoConnection;
 	}
