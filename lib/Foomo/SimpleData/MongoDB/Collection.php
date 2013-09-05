@@ -211,7 +211,7 @@ class Collection
 	private function checkVoForId($vo)
 	{
 		if(!isset($vo->id)) {
-			trigger_error('you object is not a balid vo, bcause it has no id', E_USER_ERROR);
+			trigger_error('your object is not a valid VO, because it has no id', E_USER_ERROR);
 		}
 	}
 	private function getVoClassName($voClassName)
