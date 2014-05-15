@@ -59,6 +59,16 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 		}
 		return $this->mongoDB;
 	}
+
+	/**
+	 * admin db
+	 *
+	 * @return \MongoDB
+	 */
+	public function getAdminDB()
+	{
+		return $this->getConnection()->admin;
+	}
 	/**
 	 * my connection
 	 * 

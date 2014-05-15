@@ -85,6 +85,21 @@ class Collection
 	{
 		return $this->config->getDB();
 	}
+
+	/**
+	 * @return DomainConfig
+	 */
+	public function getConfig()
+	{
+		return $this->config;
+	}
+	/**
+	 * @return \MongoDB
+	 */
+	public function getAdminDB()
+	{
+		return $this->config->getAdminDB();
+	}
 	/**
 	 * if you want to hack on it yourself ;)
 	 * 
