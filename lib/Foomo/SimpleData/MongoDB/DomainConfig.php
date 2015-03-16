@@ -82,7 +82,6 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 				$dbNameOffset = strpos(strrev($this->mongo), '/');
 				$this->dbName = substr($this->mongo, - $dbNameOffset);
 				$dsn = substr($this->mongo, 0, - $dbNameOffset - 1 );
-				$this->mongoConnection = new \Mongo($dsn);
 			} else {
 				$url = parse_url($this->mongo);
 				$dsn =
@@ -91,8 +90,8 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 					$url['host']
 				;
 				$this->dbName = substr($url['path'], 1);
-				$this->mongoConnection = new \Mongo($dsn);
 			}
+            $this->mongoConnection = new \MongoClient($dsn);
 		}
 		return $this->mongoConnection;
 	}

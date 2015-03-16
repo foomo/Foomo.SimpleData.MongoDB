@@ -28,7 +28,7 @@ use Mongo;
 class Cursor extends \MongoCursor
 {
 	private $voClassName;
-	public function __construct( Mongo $connection , $ns , array $query = array() , array $fields = array(), $voClassName = null) {
+	public function __construct( \MongoClient $connection , $ns , array $query = array() , array $fields = array(), $voClassName = null) {
 		parent::__construct($connection, $ns, $query, $fields);
 		$this->voClassName = $voClassName;
 	}
