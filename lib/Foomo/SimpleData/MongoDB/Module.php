@@ -28,7 +28,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
-	const VERSION = '0.3.0';
+	const VERSION = '0.3.1';
 	/**
 	 * the name of this module
 	 *
@@ -45,7 +45,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	 */
 	public static function initializeModule()
 	{
-		
+
 	}
 
 	/**
