@@ -28,7 +28,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
-	const VERSION = '0.3.1';
+	const VERSION = '0.3.2';
 	/**
 	 * the name of this module
 	 *
@@ -66,7 +66,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	public static function getResources()
 	{
 		$resources = array(
-			\Foomo\Modules\Resource\Module::getResource('Foomo.SimpleData', self::VERSION)
+			\Foomo\Modules\Resource\Module::getResource('Foomo.SimpleData', '0.3.*')
 		);
 		return $resources;
 	}
