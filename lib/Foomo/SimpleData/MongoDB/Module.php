@@ -65,9 +65,17 @@ class Module extends \Foomo\Modules\ModuleBase
 	 */
 	public static function getResources()
 	{
-		$resources = array(
-			\Foomo\Modules\Resource\Module::getResource('Foomo.SimpleData', '0.3.*')
-		);
+		if (!class_exists('MongoCursor')) {
+			\Foomo\Modules\Resource\ComposerPackage::getResource('alcaeus/mongo-php-adapter','*')->tryCreate();
+			return array(
+				\Foomo\Modules\Resource\ComposerPackage::getResource('alcaeus/mongo-php-adapter','*'),
+				\Foomo\Modules\Resource\Module::getResource('Foomo.SimpleData', '0.3.*')
+			);
+		} else {
+			return array(
+				\Foomo\Modules\Resource\Module::getResource('Foomo.SimpleData', '0.3.*')
+			);
+		}
 		return $resources;
 	}
 
